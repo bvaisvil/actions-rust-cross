@@ -107,6 +107,12 @@ runs:
         targets: ${{ inputs.target }}
         toolchain: ${{ inputs.toolchain }}
 
+    - name: Install Cargo Db
+      shell: bash
+      run: | 
+        cargo install cargo-deb
+      if: ${{ inputs.command == 'deb' }}
+
     - name: Install qemu-user emulator binaries if cross-compiling on arm64 host
       shell: bash
       run: |
@@ -229,6 +235,13 @@ runs:
       run: |
         ${{ steps.set-build-command.outputs.build-command }} +${{inputs.toolchain}} build ${{ inputs.args }} --target ${{ inputs.target }}
       if: steps.determine-cargo-commands.outputs.build == 'true' && runner.os != 'Windows'
+
+    - name: Build deb (*nix)
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+      run: |
+        ${{ steps.set-build-command.outputs.build-command }} +${{inputs.toolchain}} deb ${{ inputs.args }} --target ${{ inputs.target }}
+      if: steps.determine-cargo-commands.outputs.deb == 'true' && runner.os != 'Windows'
 
     - name: Build binary (Windows)
       working-directory: ${{ inputs.working-directory }}

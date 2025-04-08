@@ -374,15 +374,10 @@ jobs:
           working-directory: bench
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ matrix.platform.can-execute }}
-      - name: Install cargo-deb
-        shell: bash
-        run: | 
-          cargo install cargo-deb
-        if: ${{ matrix.platform.cargo-deb }}
       - name: Run cargo-deb
         uses: ./
         with:
-          command: cargo deb
+          command: deb
           force-use-cross: ${{ matrix.platform.force-use-cross || false }}
           cross-version: ${{ matrix.platform.cross-version }}
           cache-cross-binary: ${{ matrix.platform.cache-cross-binary }}
