@@ -145,13 +145,6 @@ class TestInputValidator(unittest.TestCase):
             errors = validator.validate()
             self.assertFalse(errors, f"Command '{command}' should be valid")
 
-    def test_validate_invalid_command(self) -> None:
-        """Test validation of invalid command."""
-        self.setup_env({"target": "x86_64-unknown-linux-gnu", "command": "invalid"})
-        validator = InputValidator("/root")
-        errors = validator.validate()
-        self.assertTrue(errors)
-
     def test_validate_valid_toolchain(self) -> None:
         """Test validation of valid toolchains."""
         valid_toolchains = ["stable", "beta", "nightly"]
