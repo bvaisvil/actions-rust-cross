@@ -42,14 +42,6 @@ class InputValidator:
         if "target" not in self.inputs:
             validation_errors.append("'target' is a required parameter")
 
-        # Validate command if present
-        if "command" in self.inputs:
-            valid_commands = {"build", "test", "both", "bench"}
-            if self.inputs["command"] not in valid_commands:
-                validation_errors.append(
-                    f"Invalid 'command'. Must be one of {sorted(valid_commands)}"
-                )
-
         # Validate toolchain if present
         if "toolchain" in self.inputs:
             valid_toolchains = {"stable", "beta", "nightly"}
@@ -152,13 +144,6 @@ class TestInputValidator(unittest.TestCase):
             validator = InputValidator("/root")
             errors = validator.validate()
             self.assertFalse(errors, f"Command '{command}' should be valid")
-
-    def test_validate_invalid_command(self) -> None:
-        """Test validation of invalid command."""
-        self.setup_env({"target": "x86_64-unknown-linux-gnu", "command": "invalid"})
-        validator = InputValidator("/root")
-        errors = validator.validate()
-        self.assertTrue(errors)
 
     def test_validate_valid_toolchain(self) -> None:
         """Test validation of valid toolchains."""
