@@ -30,6 +30,7 @@ jobs:
             expect-cross: ""
             expect-stripped: "--expect-stripped"
             can-execute: true
+            cargo-deb: false         
 
           - platform_name: Linux-x86_64 (force cross)
             runs-on: ubuntu-24.04
@@ -40,6 +41,7 @@ jobs:
             expect-cross: "--expect-cross"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: true
 
           - platform_name: Linux-aarch64
             runs-on: ubuntu-24.04
@@ -49,6 +51,7 @@ jobs:
             expect-cross: "--expect-cross"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false
 
           - platform_name: Linux-aarch64 (no cache)
             runs-on: ubuntu-24.04
@@ -58,6 +61,7 @@ jobs:
             expect-cross: "--expect-cross"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: Linux-aarch64 with cross v0.2.3
             runs-on: ubuntu-24.04
@@ -69,6 +73,7 @@ jobs:
             expect-cross-version: "0.2.3"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false
 
           - platform_name: Linux-aarch64 with cross v0.2.3 (no cache)
             runs-on: ubuntu-24.04
@@ -80,6 +85,7 @@ jobs:
             expect-cross-version: "0.2.3"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false
 
           - platform_name: Linux-aarch64 with cross 19be834
             runs-on: ubuntu-24.04
@@ -91,6 +97,7 @@ jobs:
             expect-cross-version: "19be834"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: Linux-aarch64 with cross 19be834 (no cache)
             runs-on: ubuntu-24.04
@@ -102,6 +109,7 @@ jobs:
             expect-cross-version: "19be834"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: Linux-aarch64 with arm64 host
             runs-on: ubuntu-24.04-arm
@@ -111,6 +119,7 @@ jobs:
             expect-cross: ""
             expect-stripped: "--expect-stripped"
             can-execute: true
+            cargo-deb: false  
 
           # This fails because of some sort of weird bug in cross. See
           # https://github.com/cross-rs/cross/issues/1628 for more details. Until that's fixed
@@ -137,6 +146,7 @@ jobs:
             expect-cross: "--expect-cross"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: Linux-i586
             runs-on: ubuntu-24.04
@@ -146,6 +156,7 @@ jobs:
             expect-cross: "--expect-cross"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: Linux-i686
             runs-on: ubuntu-24.04
@@ -155,6 +166,7 @@ jobs:
             expect-cross: "--expect-cross"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: Linux-powerpc
             runs-on: ubuntu-24.04
@@ -164,6 +176,7 @@ jobs:
             expect-cross: "--expect-cross"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: Linux-powerpc64
             runs-on: ubuntu-24.04
@@ -173,6 +186,7 @@ jobs:
             expect-cross: "--expect-cross"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: Linux-powerpc64le
             runs-on: ubuntu-24.04
@@ -182,6 +196,7 @@ jobs:
             expect-cross: "--expect-cross"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: Linux-riscv64
             runs-on: ubuntu-24.04
@@ -191,6 +206,7 @@ jobs:
             expect-cross: "--expect-cross"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: Linux-s390x
             runs-on: ubuntu-24.04
@@ -200,6 +216,7 @@ jobs:
             expect-cross: "--expect-cross"
             expect-stripped: ""
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: NetBSD-x86_64
             runs-on: ubuntu-24.04
@@ -209,6 +226,7 @@ jobs:
             expect-cross: "--expect-cross"
             expect-stripped: ""
             can-execute: false
+            cargo-deb: false  
 
           - platform_name: Windows-aarch64
             runs-on: windows-latest
@@ -218,6 +236,7 @@ jobs:
             expect-cross: ""
             expect-stripped: ""
             can-execute: false
+            cargo-deb: false  
 
           - platform_name: Windows-i686
             runs-on: windows-latest
@@ -227,6 +246,7 @@ jobs:
             expect-cross: ""
             expect-stripped: "--expect-stripped"
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: Windows-x86_64
             runs-on: windows-latest
@@ -235,6 +255,7 @@ jobs:
             expect-file-re: "x86-64.+Windows"
             expect-stripped: "--expect-stripped"
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: macOS-x86_64
             runs-on: macOS-latest
@@ -244,6 +265,7 @@ jobs:
             expect-cross: ""
             expect-stripped: "--expect-stripped"
             can-execute: true
+            cargo-deb: false  
 
           - platform_name: macOS-aarch64
             runs-on: macOS-latest
@@ -253,6 +275,7 @@ jobs:
             expect-cross: ""
             expect-stripped: "--expect-stripped"
             can-execute: false
+            cargo-deb: false  
 
     runs-on: ${{ matrix.platform.runs-on }}
     steps:
@@ -351,6 +374,22 @@ jobs:
           working-directory: bench
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ matrix.platform.can-execute }}
+      - name: Install cargo-deb
+        shell: bash
+        run: | 
+          cargo install cargo-deb
+        if: ${{ matrix.platform.cargo-deb }}
+      - name: Run cargo-deb
+        uses: ./
+        with:
+          command: cargo deb
+          force-use-cross: ${{ matrix.platform.force-use-cross || false }}
+          cross-version: ${{ matrix.platform.cross-version }}
+          cache-cross-binary: ${{ matrix.platform.cache-cross-binary }}
+          target: ${{ matrix.platform.target }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          strip: true
+        if: ${{ matrix.platform.cargo-deb }}
 
   test-validate-inputs:
     name: Test validate-inputs
